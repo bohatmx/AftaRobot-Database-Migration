@@ -1,0 +1,7 @@
+<resources>
+    <string name="library_name">AftaRobotLibrary</string>
+    <string name="title_activity_sign_in">SignInActivity</string>
+    <string name="action_settings">Settings</string>
+    <string name="signin_error">Unable to sign you in. Please check email or password</string>
+    <string name="login_error">Sign in failed. Please check your email or password</string>
+</resources>
