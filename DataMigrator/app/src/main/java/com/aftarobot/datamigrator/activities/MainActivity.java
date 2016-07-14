@@ -228,7 +228,7 @@ public class MainActivity extends AppCompatActivity {
                             Log.i(TAG, "####### onComplete: we cool, name: "
                                     + user.getDisplayName() + " email: " + user.getEmail()
                                     + " uid: " + user.getUid() + " \ntoken: " + user.getToken(true));
-
+                            getCities();
 
                         } else {
                             Log.e(TAG, "------------ sign in FAILED");
@@ -238,7 +238,7 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
-    List<CityDTO> cities = new ArrayList<>();
+    private List<CityDTO> cities = new ArrayList<>();
 
     private void getCities() {
         final DatabaseReference citiesRef = db.getReference(DataUtil.AFTAROBOT_DB)

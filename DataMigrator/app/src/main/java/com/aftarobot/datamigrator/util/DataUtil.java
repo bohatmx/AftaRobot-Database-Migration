@@ -28,7 +28,6 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.crash.FirebaseCrash;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -554,7 +553,6 @@ public class DataUtil {
                 @Override
                 public void onFailure(@NonNull Exception e) {
                     if (e instanceof FirebaseAuthUserCollisionException) {
-                        updateUserProfile(user, null);
                         return;
                     }
                     FirebaseCrash.report(e);
@@ -576,51 +574,51 @@ public class DataUtil {
         void onError(String message);
     }
 
-    public  static void updateUserProfile(final UserDTO user, final UserProfileListener listener) {
-        if (mAuth == null)
-            mAuth = FirebaseAuth.getInstance();
-        mAuth.signInWithEmailAndPassword(user.getEmail(), user.getPassword());
-        authStateListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser fbUser = firebaseAuth.getCurrentUser();
-                //update user profile set display name + photo
-                UserProfileChangeRequest.Builder b;
-                if (user.getName() == null) {
-                    b = new UserProfileChangeRequest.Builder()
-                            .setDisplayName("No name available");
-                } else {
-                    b = new UserProfileChangeRequest.Builder()
-                            .setDisplayName(user.getName());
-                }
-                Task<Void> task = fbUser.updateProfile(b.build());
-                task.addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        FirebaseCrash.report(e);
-                        Log.e(TAG, "--------- onFailure: unable to update profile", e);
-                        if (listener != null)
-                            listener.onError(e.getMessage());
-                    }
-                });
-
-                task.addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.i(TAG, "++++++++++ onSuccess: user display name updated");
-
-                        mAuth.removeAuthStateListener(authStateListener);
-                        if (listener != null)
-                            listener.onProfileUpdated();
-
-                    }
-                });
-            }
-        };
-
-        mAuth.addAuthStateListener(authStateListener);
-
-    }
+//    public  static void updateUserProfile(final UserDTO user, final UserProfileListener listener) {
+//        if (mAuth == null)
+//            mAuth = FirebaseAuth.getInstance();
+//        mAuth.signInWithEmailAndPassword(user.getEmail(), user.getPassword());
+//        authStateListener = new FirebaseAuth.AuthStateListener() {
+//            @Override
+//            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+//                FirebaseUser fbUser = firebaseAuth.getCurrentUser();
+//                //update user profile set display name + photo
+//                UserProfileChangeRequest.Builder b;
+//                if (user.getName() == null) {
+//                    b = new UserProfileChangeRequest.Builder()
+//                            .setDisplayName("No name available");
+//                } else {
+//                    b = new UserProfileChangeRequest.Builder()
+//                            .setDisplayName(user.getName());
+//                }
+//                Task<Void> task = fbUser.updateProfile(b.build());
+//                task.addOnFailureListener(new OnFailureListener() {
+//                    @Override
+//                    public void onFailure(@NonNull Exception e) {
+//                        FirebaseCrash.report(e);
+//                        Log.e(TAG, "--------- onFailure: unable to update profile", e);
+//                        if (listener != null)
+//                            listener.onError(e.getMessage());
+//                    }
+//                });
+//
+//                task.addOnSuccessListener(new OnSuccessListener<Void>() {
+//                    @Override
+//                    public void onSuccess(Void aVoid) {
+//                        Log.i(TAG, "++++++++++ onSuccess: user display name updated");
+//
+//                        mAuth.removeAuthStateListener(authStateListener);
+//                        if (listener != null)
+//                            listener.onProfileUpdated();
+//
+//                    }
+//                });
+//            }
+//        };
+//
+//        mAuth.addAuthStateListener(authStateListener);
+//
+//    }
     private  static FirebaseAnalytics analytics;
     private  static void addUser(final UserDTO user, final DataAddedListener listener) {
         if (db == null)
