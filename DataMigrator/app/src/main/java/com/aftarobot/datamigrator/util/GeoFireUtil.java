@@ -33,13 +33,13 @@ public class GeoFireUtil {
     }
 
     //
-    static final String STORAGE_URL = "gs://migrant-002.appspot.com/",
+    static final String STORAGE_URL = "gs://aftarobot-2016.appspot.com/",
             TAG = GeoFireUtil.class.getSimpleName();
 
     static FirebaseStorage storage;
     static FirebaseDatabase db;
 
-    static final String GEOFIRE_URL = "https://migrant-002.firebaseio.com/locations",
+    static final String GEOFIRE_URL = "https://aftarobot-2016.firebaseio.com/locations",
             AT = "@";
 
     public static void addLandmark(final LandmarkDTO landmark, final StorageListener listener) {
@@ -80,18 +80,17 @@ public class GeoFireUtil {
         StringBuilder sb = new StringBuilder();
         sb.append(stripBlanks(city.getCityID()));
         String key = sb.toString();
-
         geo.setLocation(key, new GeoLocation(city.getLatitude(), city.getLongitude()),
                 new GeoFire.CompletionListener() {
                     @Override
                     public void onComplete(String key, FirebaseError error) {
                         if (error == null) {
-                            Log.d(TAG, "********* onComplete: geofire route saved: " + city.getName() + ", " + city.getProvinceName() + " " + key);
+                            Log.d(TAG, "********* onComplete: geofire city saved: " + city.getName() + ", " + city.getProvinceName() + " " + key);
 
 
                         } else {
                             if (listener != null)
-                                listener.onError("Unable to add route to Geofire");
+                                listener.onError("Unable to add city to Geofire");
                         }
 
                     }

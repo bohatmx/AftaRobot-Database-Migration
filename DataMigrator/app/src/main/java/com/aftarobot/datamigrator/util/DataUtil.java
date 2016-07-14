@@ -1,5 +1,6 @@
 package com.aftarobot.datamigrator.util;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.aftarobot.library.data.AdminDTO;
@@ -16,10 +17,24 @@ import com.aftarobot.library.data.RouteCityDTO;
 import com.aftarobot.library.data.RouteDTO;
 import com.aftarobot.library.data.RoutePointsDTO;
 import com.aftarobot.library.data.TripDTO;
+import com.aftarobot.library.data.UserDTO;
 import com.aftarobot.library.data.VehicleDTO;
+import com.aftarobot.library.signin.SignInContract;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.crash.FirebaseCrash;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.Random;
 
 /**
  * Created by aubreymalabie on 6/3/16.
@@ -33,8 +48,8 @@ public class DataUtil {
     }
 
     static FirebaseDatabase db;
-    public static final String AFTAROBOT_DB = "AftaRobotDB-04", COUNTRIES = "countries", ASSOC_ROUTES = "associationRoutes", DRIVERS = "drivers",
-            VEHICLES = "vehicles", ADMINS = "admins", TRIPS = "trips",
+    public static final String AFTAROBOT_DB = "aftaRobotDB", COUNTRIES = "countries", ASSOC_ROUTES = "associationRoutes", DRIVERS = "drivers",
+            VEHICLES = "vehicles", ADMINS = "admins", TRIPS = "trips", USERS = "users",
             BEACONS = "beacons", ARRIVALS = "arrivals", DEPARTURES = "departures",
             PROVINCES = "provinces", CITIES = "cities", ROUTES = "routes", ROUTE_CITIES = "routeCities", MARSHALS = "marshals",
             LANDMARKS = "landmarks", ROUTE_POUNTS = "routePoints", ASSOCS = "associations", DRIVER_PROFILES = "driverProfiles";
@@ -388,7 +403,7 @@ public class DataUtil {
                         for (MarshalDTO a : ass.getMarshalList()) {
                             a.setAssociationID(databaseReference.getKey());
                             a.setCountryID(ass.getCountryID());
-                            addMarsnall(a, databaseReference, new DataAddedListener() {
+                            addMarshal(a, databaseReference, new DataAddedListener() {
                                 @Override
                                 public void onResponse(String key) {
 
@@ -449,7 +464,7 @@ public class DataUtil {
         });
     }
 
-    public static void addAdmin(final AdminDTO admin, DatabaseReference parent, final DataAddedListener listener) {
+    public static void addAdmin(final AdminDTO admin, final DatabaseReference parent, final DataAddedListener listener) {
         if (db == null) {
             db = FirebaseDatabase.getInstance();
         }
@@ -461,13 +476,177 @@ public class DataUtil {
                 if (databaseError == null) {
                     databaseReference.child("adminID").setValue(databaseReference.getKey());
                     Log.i(TAG, "onComplete: admin added: " + admin.getEmail());
-                    listener.onResponse(databaseReference.getKey());
+
+                    UserDTO u = new UserDTO();
+                    u.setUserType(SignInContract.ADMIN);
+                    u.setEmail(admin.getEmail());
+                    u.setName(admin.getFullName());
+                    u.setCountryID(admin.getCountryID());
+                    u.setAssociationID(admin.getAssociationID());
+                    createUser(u, new DataAddedListener() {
+                        @Override
+                        public void onResponse(String key) {
+                            listener.onResponse(key);
+                        }
+
+                        @Override
+                        public void onError(String message) {
+                            listener.onError(message);
+                        }
+                    });
+
                 } else {
                     listener.onError(databaseError.getMessage());
                 }
             }
         });
 
+    }
+
+    static Random random = new Random(System.currentTimeMillis());
+    private static String getRandomPassword() {
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = 0; i < 10; i++ ) {
+            sb.append(random.nextInt(9));
+        }
+
+        return sb.toString();
+    }
+    public static void createUser(final UserDTO user,
+                            final DataAddedListener listener) {
+        try {
+
+
+            user.setPassword(getRandomPassword());
+            if (mAuth == null)
+                mAuth = FirebaseAuth.getInstance();
+
+            Log.d(TAG, "createUser: email: " + user.getEmail() + " " + user.getPassword());
+
+            Task<AuthResult> authResultTask = mAuth.createUserWithEmailAndPassword(user.getEmail(), user.getPassword());
+            authResultTask.addOnSuccessListener(new OnSuccessListener<AuthResult>() {
+                @Override
+                public void onSuccess(AuthResult authResult) {
+                    FirebaseUser fbUser = authResult.getUser();
+                    Log.i(TAG, "onSuccess: user added to AftaRobot Platform: " + fbUser.getEmail() + " "
+                            + fbUser.getUid());
+                    user.setUid(fbUser.getUid());
+                    //add user to MPS
+                    addUser(user, new DataAddedListener() {
+                        @Override
+                        public void onResponse(String key) {
+                            Log.i(TAG, "+++++++++ onResponse: user added");
+                            listener.onResponse(key);
+                            //updateUserProfile(user, null);
+                        }
+
+                        @Override
+                        public void onError(String message) {
+                            listener.onError(message);
+                        }
+                    });
+
+
+                }
+            });
+            authResultTask.addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    if (e instanceof FirebaseAuthUserCollisionException) {
+                        updateUserProfile(user, null);
+                        return;
+                    }
+                    FirebaseCrash.report(e);
+                    Log.e(TAG, "================ onFailure: ", e);
+                    listener.onError("Unable to create user");
+                }
+            });
+        } catch (Exception e) {
+            Log.e(TAG, "createUser fucked!: ", e );
+        }
+
+    }
+
+    static FirebaseAuth.AuthStateListener authStateListener;
+    static FirebaseAuth mAuth;
+    public interface UserProfileListener {
+        void onProfileUpdated();
+
+        void onError(String message);
+    }
+
+    public  static void updateUserProfile(final UserDTO user, final UserProfileListener listener) {
+        if (mAuth == null)
+            mAuth = FirebaseAuth.getInstance();
+        mAuth.signInWithEmailAndPassword(user.getEmail(), user.getPassword());
+        authStateListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser fbUser = firebaseAuth.getCurrentUser();
+                //update user profile set display name + photo
+                UserProfileChangeRequest.Builder b;
+                if (user.getName() == null) {
+                    b = new UserProfileChangeRequest.Builder()
+                            .setDisplayName("No name available");
+                } else {
+                    b = new UserProfileChangeRequest.Builder()
+                            .setDisplayName(user.getName());
+                }
+                Task<Void> task = fbUser.updateProfile(b.build());
+                task.addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        FirebaseCrash.report(e);
+                        Log.e(TAG, "--------- onFailure: unable to update profile", e);
+                        if (listener != null)
+                            listener.onError(e.getMessage());
+                    }
+                });
+
+                task.addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.i(TAG, "++++++++++ onSuccess: user display name updated");
+
+                        mAuth.removeAuthStateListener(authStateListener);
+                        if (listener != null)
+                            listener.onProfileUpdated();
+
+                    }
+                });
+            }
+        };
+
+        mAuth.addAuthStateListener(authStateListener);
+
+    }
+    private  static FirebaseAnalytics analytics;
+    private  static void addUser(final UserDTO user, final DataAddedListener listener) {
+        if (db == null)
+            db = FirebaseDatabase.getInstance();
+
+        final DatabaseReference users = db.getReference(AFTAROBOT_DB)
+                .child(USERS);
+
+        users.push().setValue(user, new DatabaseReference.CompletionListener() {
+            @Override
+            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                if (databaseError == null) {
+                    Log.i(TAG, "********** onComplete: user added to Aftarobot PS, " + user.getName() +
+                            " key: " + databaseReference.getKey());
+                    //set userID
+                    DatabaseReference userID = users.child(databaseReference.getKey())
+                            .child("userID");
+                    userID.setValue(databaseReference.getKey());
+
+                    listener.onResponse(databaseReference.getKey());
+                } else {
+                    listener.onError("Unable to add user");
+                    FirebaseCrash.log("Unable to add authenticated user to APS platform: " + user.getEmail());
+                }
+            }
+        });
     }
 
     public static void addDriver(final DriverDTO driver, DatabaseReference parent, final DataAddedListener listener) {
@@ -506,6 +685,23 @@ public class DataUtil {
                             });
                         }
                     }
+                    UserDTO u = new UserDTO();
+                    u.setUserType(SignInContract.DRIVER);
+                    u.setEmail(driver.getEmail());
+                    u.setName(driver.getName() + " " + driver.getSurname());
+                    u.setCountryID(driver.getCountryID());
+                    u.setAssociationID(driver.getAssociationID());
+                    createUser(u, new DataAddedListener() {
+                        @Override
+                        public void onResponse(String key) {
+                            listener.onResponse(key);
+                        }
+
+                        @Override
+                        public void onError(String message) {
+                            listener.onError(message);
+                        }
+                    });
 
                     listener.onResponse(databaseReference.getKey());
                 } else {
@@ -516,7 +712,7 @@ public class DataUtil {
 
     }
 
-    public static void addMarsnall(final MarshalDTO marsh, DatabaseReference parent, final DataAddedListener listener) {
+    public static void addMarshal(final MarshalDTO marsh, DatabaseReference parent, final DataAddedListener listener) {
         if (db == null) {
             db = FirebaseDatabase.getInstance();
         }
@@ -528,7 +724,23 @@ public class DataUtil {
                 if (databaseError == null) {
                     databaseReference.child("marshalID").setValue(databaseReference.getKey());
                     Log.i(TAG, "onComplete: marshal added: " + marsh.getName());
-                    listener.onResponse(databaseReference.getKey());
+                    UserDTO u = new UserDTO();
+                    u.setUserType(SignInContract.ADMIN);
+                    u.setEmail(marsh.getEmail());
+                    u.setName(marsh.getName() + " " + marsh.getSurname());
+                    u.setCountryID(marsh.getCountryID());
+                    u.setAssociationID(marsh.getAssociationID());
+                    createUser(u, new DataAddedListener() {
+                        @Override
+                        public void onResponse(String key) {
+                            listener.onResponse(key);
+                        }
+
+                        @Override
+                        public void onError(String message) {
+                            listener.onError(message);
+                        }
+                    });
                 } else {
                     listener.onError(databaseError.getMessage());
                 }

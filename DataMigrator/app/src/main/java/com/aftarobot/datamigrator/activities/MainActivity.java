@@ -81,7 +81,8 @@ public class MainActivity extends AppCompatActivity {
         db.setPersistenceEnabled(true);
         mAuth = FirebaseAuth.getInstance();
         check();
-        getOldLandmarks();
+
+        //getOldLandmarks();
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
