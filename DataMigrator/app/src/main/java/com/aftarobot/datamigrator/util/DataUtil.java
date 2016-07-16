@@ -553,7 +553,6 @@ public class DataUtil {
 
     public static void createUser(final UserDTO user,
                                   final DataAddedListener listener) {
-
         try {
             user.setPassword(getRandomPassword());
             if (mAuth == null)
