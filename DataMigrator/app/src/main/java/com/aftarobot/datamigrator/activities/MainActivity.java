@@ -319,6 +319,7 @@ public class MainActivity extends AppCompatActivity {
     private void start() {
 
         progressBar.setVisibility(View.VISIBLE);
+
         OldUtil.getOldData(new OldUtil.OldListener() {
             @Override
             public void onResponse(ResponseDTO response) {
@@ -326,7 +327,7 @@ public class MainActivity extends AppCompatActivity {
                     for (CountryDTO c: response.getCountries()) {
                         Log.w("MainActivity", "onResponse: country: " + c.getName() );
                         //write new country from old .....
-                        com.aftarobot.library.data.CountryDTO cx = new com.aftarobot.library.data.CountryDTO();
+                        final com.aftarobot.library.data.CountryDTO cx = new com.aftarobot.library.data.CountryDTO();
                         cx.setDate(c.getDate());
                         cx.setName(c.getName());
                         cx.setLatitude(c.getLatitude());
@@ -478,19 +479,31 @@ public class MainActivity extends AppCompatActivity {
 
 
                         //now pull the trigger
-                        DataUtil.addCountry(cx, new DataUtil.DataAddedListener() {
+                        DataUtil.deleteDatabase(new DataUtil.DataAddedListener() {
                             @Override
                             public void onResponse(String key) {
-                                Log.d("MainActivity", "----------------------------------$$$$$$$$$$ BINGO! we look like we done!");
-                                progressBar.setVisibility(View.GONE);
+                                Log.w(TAG, "onResponse: Database has been deleted");
+                                DataUtil.addCountry(cx, new DataUtil.DataAddedListener() {
+                                    @Override
+                                    public void onResponse(String key) {
+                                        Log.d("MainActivity", "\n\n---------------$$$$$$$$$$ BINGO! we look like we done!");
+                                        progressBar.setVisibility(View.GONE);
+                                    }
+
+                                    @Override
+                                    public void onError(String message) {
+                                        errorBar(message);
+                                        progressBar.setVisibility(View.GONE);
+                                    }
+                                });
                             }
 
                             @Override
                             public void onError(String message) {
-                                errorBar(message);
-                                progressBar.setVisibility(View.GONE);
+                                Log.e(TAG, "onError: " + message );
                             }
                         });
+
                     }
                 }
             }

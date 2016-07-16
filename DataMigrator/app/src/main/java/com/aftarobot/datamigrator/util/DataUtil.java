@@ -54,6 +54,43 @@ public class DataUtil {
             LANDMARKS = "landmarks", ROUTE_POUNTS = "routePoints", ASSOCS = "associations", DRIVER_PROFILES = "driverProfiles";
     static final String TAG = DataUtil.class.getSimpleName();
 
+    public static void deleteDatabase(final DataAddedListener listener) {
+        if (db == null) {
+            db = FirebaseDatabase.getInstance();
+        }
+        DatabaseReference dbRef = db.getReference(AFTAROBOT_DB);
+        dbRef.removeValue(new DatabaseReference.CompletionListener() {
+            @Override
+            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                if (databaseError != null) {
+                    listener.onError(databaseError.getMessage());
+                    return;
+                }
+                listener.onResponse(databaseReference.getKey());
+
+            }
+        });
+    }
+
+    //    public static void removeUser(UserDTO user, final DataAddedListener listener) {
+//        FirebaseAuth auth = FirebaseAuth.getInstance();
+//        auth.addAuthStateListener(new FirebaseAuth.AuthStateListener() {
+//            @Override
+//            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+//                FirebaseUser fbUser = firebaseAuth.getCurrentUser();
+//                if (fbUser != null) {
+//                    fbUser.delete();
+//                    System.out.println(fbUser.getEmail() + " removed from auth database");
+//                    listener.onResponse("koolio");
+//                } else {
+//                    System.out.println("User not removed from db");
+//                    listener.onError("ERROR: User cannot be removed");
+//                }
+//
+//            }
+//        });
+//        auth.signInWithEmailAndPassword(user.getEmail(),user.getPassword());
+//    }
     public static void addCity(final CityDTO c, DatabaseReference parent, final DataAddedListener listener) {
         if (db == null) {
             db = FirebaseDatabase.getInstance();
@@ -503,20 +540,21 @@ public class DataUtil {
     }
 
     static Random random = new Random(System.currentTimeMillis());
+
     private static String getRandomPassword() {
         StringBuilder sb = new StringBuilder();
 
-        for (int i = 0; i < 10; i++ ) {
+        for (int i = 0; i < 10; i++) {
             sb.append(random.nextInt(9));
         }
 
         return sb.toString();
     }
+
     public static void createUser(final UserDTO user,
-                            final DataAddedListener listener) {
+                                  final DataAddedListener listener) {
+
         try {
-
-
             user.setPassword(getRandomPassword());
             if (mAuth == null)
                 mAuth = FirebaseAuth.getInstance();
@@ -537,7 +575,6 @@ public class DataUtil {
                         public void onResponse(String key) {
                             Log.i(TAG, "+++++++++ onResponse: user added");
                             listener.onResponse(key);
-                            //updateUserProfile(user, null);
                         }
 
                         @Override
@@ -561,20 +598,21 @@ public class DataUtil {
                 }
             });
         } catch (Exception e) {
-            Log.e(TAG, "createUser fucked!: ", e );
+            Log.e(TAG, "createUser fucked!: ", e);
         }
-
     }
+
 
     static FirebaseAuth.AuthStateListener authStateListener;
     static FirebaseAuth mAuth;
+
     public interface UserProfileListener {
         void onProfileUpdated();
 
         void onError(String message);
     }
 
-//    public  static void updateUserProfile(final UserDTO user, final UserProfileListener listener) {
+    //    public  static void updateUserProfile(final UserDTO user, final UserProfileListener listener) {
 //        if (mAuth == null)
 //            mAuth = FirebaseAuth.getInstance();
 //        mAuth.signInWithEmailAndPassword(user.getEmail(), user.getPassword());
@@ -619,8 +657,9 @@ public class DataUtil {
 //        mAuth.addAuthStateListener(authStateListener);
 //
 //    }
-    private  static FirebaseAnalytics analytics;
-    private  static void addUser(final UserDTO user, final DataAddedListener listener) {
+    private static FirebaseAnalytics analytics;
+
+    private static void addUser(final UserDTO user, final DataAddedListener listener) {
         if (db == null)
             db = FirebaseDatabase.getInstance();
 
@@ -661,6 +700,7 @@ public class DataUtil {
         d.setStatus(driver.getStatus());
         d.setEmail(driver.getEmail());
         d.setPassword(driver.getPassword());
+        d.setAssociationID(driver.getAssociationID());
 
 
         provsRef.push().setValue(d, new DatabaseReference.CompletionListener() {
@@ -686,7 +726,13 @@ public class DataUtil {
                     UserDTO u = new UserDTO();
                     u.setUserType(SignInContract.DRIVER);
                     u.setEmail(driver.getEmail());
-                    u.setName(driver.getName() + " " + driver.getSurname());
+                    StringBuilder sb = new StringBuilder();
+                    sb.append(driver.getName());
+                    if (driver.getSurname() != null) {
+                        sb.append(" ").append(driver.getSurname());
+                    }
+
+                    u.setName(sb.toString());
                     u.setCountryID(driver.getCountryID());
                     u.setAssociationID(driver.getAssociationID());
                     createUser(u, new DataAddedListener() {
@@ -725,7 +771,13 @@ public class DataUtil {
                     UserDTO u = new UserDTO();
                     u.setUserType(SignInContract.ADMIN);
                     u.setEmail(marsh.getEmail());
-                    u.setName(marsh.getName() + " " + marsh.getSurname());
+                    StringBuilder sb = new StringBuilder();
+                    sb.append(marsh.getName());
+                    if (marsh.getSurname() != null) {
+                        sb.append(" ").append(marsh.getSurname());
+                    }
+
+                    u.setName(sb.toString());
                     u.setCountryID(marsh.getCountryID());
                     u.setAssociationID(marsh.getAssociationID());
                     createUser(u, new DataAddedListener() {

@@ -22,7 +22,13 @@ public class AdminDTO implements Serializable{
     }
 
     public String getFullName() {
-        return firstName + " " + lastName;
+        StringBuilder sb = new StringBuilder();
+        sb.append(firstName);
+        if (lastName != null) {
+            sb.append(" ").append(lastName);
+        }
+
+        return sb.toString();
     }
     public String getFirstName() {
         return firstName;
