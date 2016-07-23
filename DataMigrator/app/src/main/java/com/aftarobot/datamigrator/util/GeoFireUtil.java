@@ -4,8 +4,6 @@ import android.util.Log;
 
 import com.aftarobot.library.data.CityDTO;
 import com.aftarobot.library.data.LandmarkDTO;
-import com.aftarobot.library.data.RouteCityDTO;
-import com.aftarobot.library.data.RouteDTO;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.geofire.GeoFire;
@@ -33,13 +31,13 @@ public class GeoFireUtil {
     }
 
     //
-    static final String STORAGE_URL = "gs://aftarobot-2016.appspot.com/",
+    static final String STORAGE_URL = "gs://aftarobot-2016-dev.appspot.com/",
             TAG = GeoFireUtil.class.getSimpleName();
 
     static FirebaseStorage storage;
     static FirebaseDatabase db;
 
-    static final String GEOFIRE_URL = "https://aftarobot-2016.firebaseio.com/locations",
+    static final String GEOFIRE_URL = "https://aftarobot-2016-dev.firebaseio.com/locations",
             AT = "@";
 
     public static void addLandmark(final LandmarkDTO landmark, final StorageListener listener) {
@@ -51,7 +49,6 @@ public class GeoFireUtil {
         StringBuilder sb = new StringBuilder();
         sb.append(stripBlanks(landmark.getCityID()));
         sb.append(AT).append(stripBlanks(landmark.getRouteID()));
-        sb.append(AT).append(stripBlanks(landmark.getRouteCityID()));
         sb.append(AT).append(stripBlanks(landmark.getLandmarkID()));
         String key = sb.toString();
 
@@ -115,8 +112,7 @@ public class GeoFireUtil {
                 DatabaseReference ref = db.getReference(DataUtil.AFTAROBOT_DB)
                         .child(DataUtil.CITIES).child(result[0])
                         .child(DataUtil.ROUTES).child(result[1])
-                        .child(DataUtil.ROUTE_CITIES).child(result[2])
-                        .child(DataUtil.LANDMARKS).child(result[3]);
+                        .child(DataUtil.LANDMARKS).child(result[2]);
                 ref.addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -155,25 +151,7 @@ public class GeoFireUtil {
             }
         });
     }
-    public static void addCityLandmarks(CityDTO city) {
-        final GeoFire geo = new GeoFire(new Firebase(GEOFIRE_URL + "/landmarks"));
-        if (city.getRoutes() != null) {
-            for (RouteDTO r: city.getRoutes().values()) {
-                Log.w(TAG, "\t: route: " + r.getName() );
-                if (r.getRouteCities() != null) {
-                    for (RouteCityDTO rc: r.getRouteCities().values()) {
-                        Log.e(TAG, "\t\t: routeCity: " + rc.getCityName() );
-                        if (rc.getLandmarks() != null) {
-                            for (final LandmarkDTO l: rc.getLandmarks().values()) {
-                                Log.d(TAG, "\t\t\t: landmark: " + l.getLandmarkName() + " route: " + l.getCityName());
-                                addLandmark(l,null);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+
     private static String stripBlanks(String s) {
         return s.replaceAll("\\s+","");
     }

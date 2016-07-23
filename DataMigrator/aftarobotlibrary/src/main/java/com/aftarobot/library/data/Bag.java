@@ -8,7 +8,7 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * @author Sipho
+ * @author Aubrey Malabie
  */
 public class Bag implements Serializable {
 
@@ -61,8 +61,7 @@ public class Bag implements Serializable {
     private List<OwnerNotificationDTO> ownerNotifications;
     private ProvinceDTO province;
     private List<ProvinceDTO> provinces;
-    private RouteCityDTO routeCity;
-    private List<RouteCityDTO> routeCities;
+
     private RouteDTO route;
     private List<RouteDTO> routes;
     private SecretaryDTO secretary;
@@ -451,22 +450,6 @@ public class Bag implements Serializable {
 
     public void setProvinces(List<ProvinceDTO> provinces) {
         this.provinces = provinces;
-    }
-
-    public RouteCityDTO getRouteCity() {
-        return routeCity;
-    }
-
-    public void setRouteCity(RouteCityDTO routeCity) {
-        this.routeCity = routeCity;
-    }
-
-    public List<RouteCityDTO> getRouteCities() {
-        return routeCities;
-    }
-
-    public void setRouteCities(List<RouteCityDTO> routeCities) {
-        this.routeCities = routeCities;
     }
 
     public RouteDTO getRoute() {

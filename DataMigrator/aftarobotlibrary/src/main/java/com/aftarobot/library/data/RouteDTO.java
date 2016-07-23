@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * @author Sipho
+ * @author Aubrey Malabie
  */
 public class RouteDTO implements Serializable, Comparable<RouteDTO> {
 
@@ -19,13 +19,29 @@ public class RouteDTO implements Serializable, Comparable<RouteDTO> {
     private String name, status, associationName;
     private long date;
     private List<RoutePointsDTO> routePointList = new ArrayList<>();
-    private List<RouteCityDTO> routeCityList = new ArrayList<>();
+    private List<LandmarkDTO> landmarkList = new ArrayList<>();
 
     HashMap<String,RoutePointsDTO> routePoints;
-    HashMap<String,RouteCityDTO> routeCities;
+    HashMap<String,LandmarkDTO> landmarks;
 
     public RouteDTO() {
 
+    }
+
+    public List<LandmarkDTO> getLandmarkList() {
+        return landmarkList;
+    }
+
+    public void setLandmarkList(List<LandmarkDTO> landmarkList) {
+        this.landmarkList = landmarkList;
+    }
+
+    public HashMap<String, LandmarkDTO> getLandmarks() {
+        return landmarks;
+    }
+
+    public void setLandmarks(HashMap<String, LandmarkDTO> landmarks) {
+        this.landmarks = landmarks;
     }
 
     public List<RoutePointsDTO> getRoutePointList() {
@@ -36,13 +52,6 @@ public class RouteDTO implements Serializable, Comparable<RouteDTO> {
         this.routePointList = routePointList;
     }
 
-    public List<RouteCityDTO> getRouteCityList() {
-        return routeCityList;
-    }
-
-    public void setRouteCityList(List<RouteCityDTO> routeCityList) {
-        this.routeCityList = routeCityList;
-    }
 
     public HashMap<String, RoutePointsDTO> getRoutePoints() {
         return routePoints;
@@ -52,13 +61,6 @@ public class RouteDTO implements Serializable, Comparable<RouteDTO> {
         this.routePoints = routePoints;
     }
 
-    public HashMap<String, RouteCityDTO> getRouteCities() {
-        return routeCities;
-    }
-
-    public void setRouteCities(HashMap<String, RouteCityDTO> routeCities) {
-        this.routeCities = routeCities;
-    }
 
     public String getCountryID() {
         return countryID;

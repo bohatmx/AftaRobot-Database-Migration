@@ -35,9 +35,6 @@ import com.aftarobot.datamigrator.util.GeoFireUtil;
 import com.aftarobot.datamigrator.util.OldUtil;
 import com.aftarobot.library.data.CityDTO;
 import com.aftarobot.library.data.OwnerDTO;
-import com.aftarobot.library.data.RouteCityDTO;
-import com.aftarobot.library.data.RouteDTO;
-import com.aftarobot.library.data.TripDTO;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -74,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         recycler = (RecyclerView) findViewById(R.id.recycler);
         txtTitle = (TextView) findViewById(R.id.titleLabel);
-        progressBar = (ProgressBar)findViewById(R.id.progress_bar);
+        progressBar = (ProgressBar) findViewById(R.id.progress_bar);
         progressBar.setVisibility(View.GONE);
 
         db = FirebaseDatabase.getInstance();
@@ -102,14 +99,15 @@ public class MainActivity extends AppCompatActivity {
     List<LandmarkDTO> landmarks;
 
     HashMap<String, LandmarkDTO> map = new HashMap<>();
+
     private void getOldLandmarks() {
         OldUtil.getOldLandmarks(new OldUtil.OldListener() {
             @Override
             public void onResponse(ResponseDTO response) {
                 if (response.getStatusCode() == 0) {
                     landmarks = response.getLandmarks();
-                    for (LandmarkDTO m: landmarks) {
-                        map.put(m.getLandmarkName(),m);
+                    for (LandmarkDTO m : landmarks) {
+                        map.put(m.getLandmarkName(), m);
                     }
                     Log.d(TAG, "--------------- onResponse: landmarks: " + landmarks.size());
                     DatabaseReference ref = db.getReference(DataUtil.AFTAROBOT_DB)
@@ -124,55 +122,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
-    private void addTrips(CityDTO city) {
 
-
-        if (city.getRoutes() != null) {
-            for (RouteDTO r: city.getRoutes().values()) {
-                if (r.getRouteCities() != null) {
-                    for (RouteCityDTO rc: r.getRouteCities().values()) {
-                        if (rc.getLandmarks() != null) {
-                            for (com.aftarobot.library.data.LandmarkDTO l: rc.getLandmarks().values()) {
-
-                                LandmarkDTO x = map.get(l.getLandmarkName());
-                                if (x != null) {
-                                    if (!x.getTripList().isEmpty()) {
-                                        for (com.aftarobot.datamigrator.olddata.TripDTO t: x.getTripList()) {
-                                            TripDTO tx = new TripDTO();
-                                            tx.setLandmarkID(l.getLandmarkID());
-                                            tx.setLandmarkName(t.getLandmarkName());
-                                            tx.setVehicleReg(t.getVehicleReg());
-                                            tx.setRouteName(l.getRouteName());
-                                            tx.setRouteCityName(l.getRouteCityName());
-                                            tx.setCityID(l.getCityID());
-                                            tx.setCityName(l.getCityName());
-                                            tx.setDateArrived(t.getDateArrived());
-                                            tx.setDateDispatched(t.getDateDipatched());
-                                            tx.setMarshalName(t.getMarshalName());
-                                            tx.setNumberOfPassengers(t.getNumberOfPassengers());
-                                            tx.setRouteCityID(l.getRouteCityID());
-                                            tx.setAssociatioName(t.getAssociatioName());
-
-                                            DataUtil.addTrip(tx,null);
-
-                                        }
-                                    } else {
-                                        Log.d(TAG, "addTrips: NO TRIPS");
-                                    }
-                                }
-                            }
-                        } else {
-                            Log.d(TAG, "addTrips: No landmarks");
-                        }
-                    }
-                } else {
-                    Log.d(TAG, "addTrips: No landmark cities");
-                }
-            }
-        } else {
-            Log.d(TAG, "addTrips: no ROUTES!!");
-        }
-    }
     private void errorBar(String message) {
         bar = Snackbar.make(progressBar, message, Snackbar.LENGTH_INDEFINITE);
         bar.setActionTextColor(ContextCompat.getColor(getApplicationContext(), android.R.color.holo_red_light));
@@ -210,6 +160,7 @@ public class MainActivity extends AppCompatActivity {
         mAuth.addAuthStateListener(mAuthListener);
         signIn();
     }
+
     private void signIn() {
 
         Log.w(TAG, "signIn: ================ Firebase signin");
@@ -249,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 cities.clear();
-                for (DataSnapshot m: dataSnapshot.getChildren()) {
+                for (DataSnapshot m : dataSnapshot.getChildren()) {
                     cities.add(m.getValue(CityDTO.class));
                 }
                 Collections.sort(cities);
@@ -264,7 +215,7 @@ public class MainActivity extends AppCompatActivity {
 
                     }
                 });
-                LinearLayoutManager lm = new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL,false);
+                LinearLayoutManager lm = new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false);
                 recycler.setLayoutManager(lm);
                 recycler.setAdapter(adapter);
             }
@@ -278,7 +229,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getLandmarks(double latitude, double longitude) {
-        GeoFireUtil.getLandmarks(latitude, longitude, 3,new GeoFireUtil.StorageListener() {
+        GeoFireUtil.getLandmarks(latitude, longitude, 3, new GeoFireUtil.StorageListener() {
             @Override
             public void onUploaded(String key) {
 
@@ -290,12 +241,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
     private void addCityToGeoFire(final CityDTO city) {
-        Log.e(TAG, "addCityToGeoFire: landmark: " + city.getName() + ", " + city.getProvinceName() );
+        Log.e(TAG, "addCityToGeoFire: landmark: " + city.getName() + ", " + city.getProvinceName());
         GeoFireUtil.addCity(city, new GeoFireUtil.StorageListener() {
             @Override
             public void onUploaded(String key) {
-                Log.w(TAG, "++++++++++++++++ onUploaded: landmark on geofire: " + city.getName() );
+                Log.w(TAG, "++++++++++++++++ onUploaded: landmark on geofire: " + city.getName());
             }
 
             @Override
@@ -305,6 +257,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
+
     public static class CityViewHolder extends RecyclerView.ViewHolder {
         protected TextView name, number;
 
@@ -316,6 +269,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+
     private void start() {
 
         progressBar.setVisibility(View.VISIBLE);
@@ -324,29 +278,29 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(ResponseDTO response) {
                 if (response.getStatusCode() == 0) {
-                    for (CountryDTO c: response.getCountries()) {
-                        Log.w("MainActivity", "onResponse: country: " + c.getName() );
+                    for (CountryDTO c : response.getCountries()) {
+                        Log.w("MainActivity", "onResponse: country: " + c.getName());
                         //write new country from old .....
                         final com.aftarobot.library.data.CountryDTO cx = new com.aftarobot.library.data.CountryDTO();
                         cx.setDate(c.getDate());
                         cx.setName(c.getName());
                         cx.setLatitude(c.getLatitude());
                         cx.setLongitude(c.getLongitude());
-                        for (ProvinceDTO p: c.getProvinceList()) {
+                        for (ProvinceDTO p : c.getProvinceList()) {
                             com.aftarobot.library.data.ProvinceDTO px = new com.aftarobot.library.data.ProvinceDTO();
                             px.setName(p.getName());
                             px.setLatitude(p.getLatitude());
                             px.setLongitude(p.getLongitude());
                             px.setStatus(p.getStatus());
 
-                            for (com.aftarobot.datamigrator.olddata.CityDTO z: p.getCityList()) {
+                            for (com.aftarobot.datamigrator.olddata.CityDTO z : p.getCityList()) {
                                 CityDTO city = new CityDTO();
                                 city.setName(z.getName());
                                 city.setLatitude(z.getLatitude());
                                 city.setLongitude(z.getLongitude());
                                 city.setStatus(z.getStatus());
 
-                                for (AssociationDTO a: z.getAssociationList()) {
+                                for (AssociationDTO a : z.getAssociationList()) {
 
                                     com.aftarobot.library.data.AssociationDTO ax = new com.aftarobot.library.data.AssociationDTO();
                                     ax.setDate(a.getDate());
@@ -355,14 +309,16 @@ public class MainActivity extends AppCompatActivity {
                                     ax.setCountryName(c.getName());
                                     ax.setPhone(a.getPhone());
 
-                                    for (AdminDTO sd: a.getAdminList()) {
+                                    for (AdminDTO sd : a.getAdminList()) {
                                         com.aftarobot.library.data.AdminDTO sdx = new com.aftarobot.library.data.AdminDTO();
                                         sdx.setEmail(sd.getEmail());
                                         sdx.setDate(sd.getDate());
                                         sdx.setPassword(sd.getPassword());
-                                        ax.getAdminList().add(sdx);
+                                        if (sd.getEmail() != null)
+                                            ax.getAdminList().add(sdx);
                                     }
-                                    for (DriverDTO d: a.getDriverList()) {
+                                    for (DriverDTO d : a.getDriverList()) {
+
                                         com.aftarobot.library.data.DriverDTO dx = new com.aftarobot.library.data.DriverDTO();
                                         dx.setName(d.getName());
                                         dx.setEmail(d.getEmail());
@@ -373,7 +329,7 @@ public class MainActivity extends AppCompatActivity {
                                         dx.setSurname(d.getSurname());
                                         if (!d.getDriverProfileList().isEmpty()) {
 
-                                            for (DriverProfileDTO dp: d.getDriverProfileList()) {
+                                            for (DriverProfileDTO dp : d.getDriverProfileList()) {
                                                 com.aftarobot.library.data.DriverProfileDTO dpx = new com.aftarobot.library.data.DriverProfileDTO();
                                                 dpx.setDate(dp.getDate());
                                                 dpx.setStatus(dp.getStatus());
@@ -387,9 +343,11 @@ public class MainActivity extends AppCompatActivity {
                                                 dx.getDriverProfileList().add(dpx);
                                             }
                                         }
-                                        ax.getDriverList().add(dx);
+                                        if (dx.getEmail() != null)
+                                            ax.getDriverList().add(dx);
                                     }
-                                    for (MarshalDTO sd: a.getMarshalList()) {
+                                    for (MarshalDTO sd : a.getMarshalList()) {
+
                                         com.aftarobot.library.data.MarshalDTO sdx = new com.aftarobot.library.data.MarshalDTO();
                                         sdx.setEmail(sd.getEmail());
                                         sdx.setDate(sd.getDate());
@@ -397,10 +355,10 @@ public class MainActivity extends AppCompatActivity {
                                         sdx.setName(sd.getName());
                                         sdx.setStatus(sd.getSurname());
                                         sdx.setPhone(sd.getPhone());
-
-                                        ax.getMarshalList().add(sdx);
+                                        if (sdx.getEmail() != null)
+                                            ax.getMarshalList().add(sdx);
                                     }
-                                    for (VehicleDTO sd: a.getVehicleList()) {
+                                    for (VehicleDTO sd : a.getVehicleList()) {
                                         com.aftarobot.library.data.VehicleDTO sdx = new com.aftarobot.library.data.VehicleDTO();
                                         sdx.setDate(sd.getDate());
                                         sdx.setCapacity(sd.getCapacity());
@@ -424,12 +382,12 @@ public class MainActivity extends AppCompatActivity {
                                         }
                                         ax.getVehicleList().add(sdx);
                                     }
-                                    for (com.aftarobot.datamigrator.olddata.RouteDTO r: a.getRouteList()) {
+                                    for (com.aftarobot.datamigrator.olddata.RouteDTO r : a.getRouteList()) {
                                         com.aftarobot.library.data.RouteDTO rx = new com.aftarobot.library.data.RouteDTO();
                                         rx.setName(r.getName());
                                         rx.setDate(r.getDate());
                                         rx.setStatus(r.getStatus());
-                                        for (RoutePointsDTO rp: r.getRoutePoints()) {
+                                        for (RoutePointsDTO rp : r.getRoutePoints()) {
                                             com.aftarobot.library.data.RoutePointsDTO rpx = new com.aftarobot.library.data.RoutePointsDTO();
                                             rpx.setStatus(rp.getStatus());
                                             rpx.setLatitude(rp.getLatitude());
@@ -438,18 +396,14 @@ public class MainActivity extends AppCompatActivity {
 
                                             rx.getRoutePointList().add(rpx);
                                         }
-                                        for (com.aftarobot.datamigrator.olddata.RouteCityDTO rc: r.getRouteCityList()) {
-                                            com.aftarobot.library.data.RouteCityDTO rcx = new com.aftarobot.library.data.RouteCityDTO();
-                                            rcx.setCityName(rc.getCityName());
-                                            rcx.setDate(rc.getDate());
-                                            rcx.setStatus(rc.getStatus());
-                                            rcx.setRouteName(rc.getRouteName());
+                                        for (com.aftarobot.datamigrator.olddata.RouteCityDTO rc : r.getRouteCityList()) {
 
-                                            for (LandmarkDTO l: rc.getLandmarkList()) {
+                                            for (LandmarkDTO l : rc.getLandmarkList()) {
                                                 com.aftarobot.library.data.LandmarkDTO lx = new com.aftarobot.library.data.LandmarkDTO();
                                                 lx.setLatitude(l.getLatitude());
                                                 lx.setLongitude(l.getLongitude());
                                                 lx.setCityName(rc.getCityName());
+                                                lx.setCityID(rx.getCityID());
                                                 lx.setLandmarkName(l.getLandmarkName());
                                                 lx.setRouteName(rc.getRouteName());
                                                 lx.setStatus(l.getStatus());
@@ -458,10 +412,9 @@ public class MainActivity extends AppCompatActivity {
                                                 lx.setNumberOfWaitingCommuters(l.getNumberOfWaitingCommuters());
                                                 lx.setDate(l.getDate());
 
-                                                rcx.getLandmarkList().add(lx);
+                                                rx.getLandmarkList().add(lx);
                                             }
 
-                                            rx.getRouteCityList().add(rcx);
                                         }
 
 
@@ -500,7 +453,7 @@ public class MainActivity extends AppCompatActivity {
 
                             @Override
                             public void onError(String message) {
-                                Log.e(TAG, "onError: " + message );
+                                Log.e(TAG, "onError: " + message);
                             }
                         });
 
@@ -515,6 +468,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.

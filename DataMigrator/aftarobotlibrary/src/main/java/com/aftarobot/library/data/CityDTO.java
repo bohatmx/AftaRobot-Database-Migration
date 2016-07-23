@@ -12,7 +12,7 @@ import java.util.List;
 
 /**
  *
- * @author Sipho
+ * @author Aubrey Malabie
  */
 public class CityDTO implements Serializable, Comparable<CityDTO>{
 
@@ -23,10 +23,8 @@ public class CityDTO implements Serializable, Comparable<CityDTO>{
     private long date;
 
     private HashMap<String, RouteDTO> routes;
-    private List<RouteCityDTO> routeCityList = new ArrayList<>();
     private  List<AssociationDTO> associationList = new ArrayList<>();
     private HashMap<String, AssociationDTO> associations;
-    private HashMap<String, RouteCityDTO> routeCities;
 
     public CityDTO() {
 
@@ -56,16 +54,6 @@ public class CityDTO implements Serializable, Comparable<CityDTO>{
         this.associations = associations;
     }
 
-    public HashMap<String, RouteCityDTO> getRouteCities() {
-        return routeCities;
-    }
-
-    public void setRouteCities(HashMap<String, RouteCityDTO> routeCities) {
-        if (routeCities != null) {
-            routeCityList.addAll(routeCities.values());
-        }
-        this.routeCities = routeCities;
-    }
 
     public String getCountryID() {
         return countryID;
@@ -137,14 +125,6 @@ public class CityDTO implements Serializable, Comparable<CityDTO>{
 
     public void setDate(long date) {
         this.date = date;
-    }
-
-    public List<RouteCityDTO> getRouteCityList() {
-        return routeCityList;
-    }
-
-    public void setRouteCityList(List<RouteCityDTO> routeCityList) {
-        this.routeCityList = routeCityList;
     }
 
     public String getCountryName() {

@@ -7,7 +7,7 @@ package com.aftarobot.library.data;
 
 /**
  *
- * @author SiphoKobue
+ * @author Aubrey MalabieKobue
  */
 public class VehicleInfoDTO {
 

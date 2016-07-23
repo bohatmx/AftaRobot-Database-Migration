@@ -8,7 +8,7 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * @author Sipho
+ * @author Aubrey Malabie
  */
 public class ResponseDTO implements Serializable {
 

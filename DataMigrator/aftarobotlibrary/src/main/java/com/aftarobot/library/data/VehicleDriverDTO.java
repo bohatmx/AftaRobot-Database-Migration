@@ -9,7 +9,7 @@ import java.io.Serializable;
 
 /**
  *
- * @author Sipho
+ * @author Aubrey Malabie
  */
 public class VehicleDriverDTO implements Serializable{
 

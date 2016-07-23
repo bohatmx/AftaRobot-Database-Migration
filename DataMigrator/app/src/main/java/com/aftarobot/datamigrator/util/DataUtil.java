@@ -13,7 +13,6 @@ import com.aftarobot.library.data.DriverProfileDTO;
 import com.aftarobot.library.data.LandmarkDTO;
 import com.aftarobot.library.data.MarshalDTO;
 import com.aftarobot.library.data.ProvinceDTO;
-import com.aftarobot.library.data.RouteCityDTO;
 import com.aftarobot.library.data.RouteDTO;
 import com.aftarobot.library.data.RoutePointsDTO;
 import com.aftarobot.library.data.TripDTO;
@@ -33,6 +32,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -47,10 +48,10 @@ public class DataUtil {
     }
 
     static FirebaseDatabase db;
-    public static final String AFTAROBOT_DB = "aftaRobotDB", COUNTRIES = "countries", ASSOC_ROUTES = "associationRoutes", DRIVERS = "drivers",
+    public static final String AFTAROBOT_DB = "AftaRobotDB", COUNTRIES = "countries", ASSOC_ROUTES = "associationRoutes", DRIVERS = "drivers",
             VEHICLES = "vehicles", ADMINS = "admins", TRIPS = "trips", USERS = "users",
             BEACONS = "beacons", ARRIVALS = "arrivals", DEPARTURES = "departures",
-            PROVINCES = "provinces", CITIES = "cities", ROUTES = "routes", ROUTE_CITIES = "routeCities", MARSHALS = "marshals",
+            PROVINCES = "provinces", CITIES = "cities", ROUTES = "routes", MARSHALS = "marshals",
             LANDMARKS = "landmarks", ROUTE_POUNTS = "routePoints", ASSOCS = "associations", DRIVER_PROFILES = "driverProfiles";
     static final String TAG = DataUtil.class.getSimpleName();
 
@@ -91,7 +92,7 @@ public class DataUtil {
 //        });
 //        auth.signInWithEmailAndPassword(user.getEmail(),user.getPassword());
 //    }
-    public static void addCity(final CityDTO c, DatabaseReference parent, final DataAddedListener listener) {
+    public static void addCity(final CityDTO c, final DataAddedListener listener) {
         if (db == null) {
             db = FirebaseDatabase.getInstance();
         }
@@ -146,60 +147,6 @@ public class DataUtil {
         });
     }
 
-    public static void addRouteCity(final RouteCityDTO routeCity, DatabaseReference parent, final DataAddedListener listener) {
-        if (db == null) {
-            db = FirebaseDatabase.getInstance();
-        }
-        DatabaseReference routeCitiesRef = parent.child(ROUTE_CITIES);
-
-        final RouteCityDTO x = new RouteCityDTO();
-        x.setRouteName(routeCity.getRouteName());
-        x.setCityName(routeCity.getCityName());
-        x.setStatus(routeCity.getStatus());
-        x.setCountryID(routeCity.getCountryID());
-        x.setCityID(routeCity.getCityID());
-        x.setProvinceID(routeCity.getProvinceID());
-
-        routeCitiesRef.push().setValue(x, new DatabaseReference.CompletionListener() {
-            @Override
-            public void onComplete(DatabaseError databaseError, DatabaseReference routeCityRef) {
-                if (databaseError == null) {
-                    routeCityRef.child("routeCityID").setValue(routeCityRef.getKey());
-                    Log.i(TAG, "onComplete: routeCity added, route: " + x.getCityName() + " routeName: " + x.getRouteName());
-
-                    if (!routeCity.getLandmarkList().isEmpty()) {
-                        for (final LandmarkDTO m : routeCity.getLandmarkList()) {
-                            m.setCityID(routeCity.getCityID());
-                            m.setProvinceID(routeCity.getProvinceID());
-                            m.setRouteCityID(routeCityRef.getKey());
-                            m.setCountryID(routeCity.getCountryID());
-                            m.setRouteID(routeCity.getRouteID());
-                            m.setCityName(routeCity.getCityName());
-                            m.setRouteName(routeCity.getRouteName());
-
-                            addLandmark(m, routeCityRef, new DataAddedListener() {
-                                @Override
-                                public void onResponse(String key) {
-
-                                }
-
-                                @Override
-                                public void onError(String message) {
-
-                                }
-                            });
-                        }
-                    }
-
-
-                    listener.onResponse(routeCityRef.getKey());
-                } else {
-                    listener.onError(databaseError.getMessage());
-                }
-
-            }
-        });
-    }
 
     public static void addVehicle(final VehicleDTO vehicle, DatabaseReference parent, final DataAddedListener listener) {
         if (db == null) {
@@ -226,35 +173,20 @@ public class DataUtil {
             db = FirebaseDatabase.getInstance();
         }
         DatabaseReference landmarks = parent.child(LANDMARKS);
-        final LandmarkDTO x = new LandmarkDTO();
-        x.setRouteName(landmark.getRouteName());
-        x.setLandmarkName(landmark.getLandmarkName());
-        x.setCityID(landmark.getCityID());
-        x.setDate(landmark.getDate());
-        x.setCityName(landmark.getCityName());
-        x.setRouteName(landmark.getRouteName());
-        x.setRouteCityName(landmark.getRouteCityName());
-        x.setRouteID(landmark.getRouteID());
-        x.setRouteCityID(landmark.getRouteCityID());
-        x.setRankSequenceNumber(landmark.getRankSequenceNumber());
-        x.setDistanceInbound(landmark.getDistanceInbound());
-        x.setDistanceOutbound(landmark.getDistanceOutbound());
-        x.setEstimatedTimeInbound(landmark.getEstimatedTimeInbound());
-        x.setEstimatedTimeOutbound(landmark.getEstimatedTimeOutbound());
-        x.setLatitude(landmark.getLatitude());
-        x.setLongitude(landmark.getLongitude());
 
-        landmarks.push().setValue(x, new DatabaseReference.CompletionListener() {
+        landmarks.push().setValue(landmark, new DatabaseReference.CompletionListener() {
             @Override
             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                 if (databaseError == null) {
                     databaseReference.child("landmarkID").setValue(databaseReference.getKey());
                     Log.i(TAG, "onComplete: landmark added: " + landmark.getLandmarkName());
-                    x.setLandmarkID(databaseReference.getKey());
-                    GeoFireUtil.addLandmark(x, null);
-                    listener.onResponse(databaseReference.getKey());
+                    landmark.setLandmarkID(databaseReference.getKey());
+                    GeoFireUtil.addLandmark(landmark, null);
+                    if (listener != null)
+                        listener.onResponse(databaseReference.getKey());
                 } else {
-                    listener.onError(databaseError.getMessage());
+                    if (listener != null)
+                        listener.onError(databaseError.getMessage());
                 }
             }
         });
@@ -350,7 +282,7 @@ public class DataUtil {
                             c.setCountryName(prov.getCountryName());
 
 
-                            addCity(c, databaseReference, new DataAddedListener() {
+                            addCity(c,  new DataAddedListener() {
                                 @Override
                                 public void onResponse(String key) {
 
@@ -404,6 +336,7 @@ public class DataUtil {
                         for (AdminDTO a : ass.getAdminList()) {
                             a.setAssociationID(databaseReference.getKey());
                             a.setCountryID(ass.getCountryID());
+
                             addAdmin(a, databaseReference, new DataAddedListener() {
                                 @Override
                                 public void onResponse(String key) {
@@ -439,6 +372,7 @@ public class DataUtil {
                         for (MarshalDTO a : ass.getMarshalList()) {
                             a.setAssociationID(databaseReference.getKey());
                             a.setCountryID(ass.getCountryID());
+
                             addMarshal(a, databaseReference, new DataAddedListener() {
                                 @Override
                                 public void onResponse(String key) {
@@ -511,7 +445,7 @@ public class DataUtil {
             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                 if (databaseError == null) {
                     databaseReference.child("adminID").setValue(databaseReference.getKey());
-                    Log.i(TAG, "onComplete: admin added: " + admin.getEmail());
+                    Log.i(TAG, "++++++++++++++++++++++++++++++ onComplete: admin added: " + admin.getEmail());
 
                     UserDTO u = new UserDTO();
                     u.setUserType(SignInContract.ADMIN);
@@ -519,6 +453,7 @@ public class DataUtil {
                     u.setName(admin.getFullName());
                     u.setCountryID(admin.getCountryID());
                     u.setAssociationID(admin.getAssociationID());
+
                     createUser(u, new DataAddedListener() {
                         @Override
                         public void onResponse(String key) {
@@ -558,21 +493,22 @@ public class DataUtil {
             if (mAuth == null)
                 mAuth = FirebaseAuth.getInstance();
 
-            Log.d(TAG, "createUser: email: " + user.getEmail() + " " + user.getPassword());
+            Log.d(TAG, "-------------------> createUser: email: " + user.getEmail() + " " + user.getPassword());
 
             Task<AuthResult> authResultTask = mAuth.createUserWithEmailAndPassword(user.getEmail(), user.getPassword());
             authResultTask.addOnSuccessListener(new OnSuccessListener<AuthResult>() {
                 @Override
                 public void onSuccess(AuthResult authResult) {
                     FirebaseUser fbUser = authResult.getUser();
-                    Log.i(TAG, "onSuccess: user added to AftaRobot Platform: " + fbUser.getEmail() + " "
+                    Log.i(TAG, "********************** onSuccess: user added to AftaRobot Platform: " + fbUser.getEmail() + " "
                             + fbUser.getUid());
                     user.setUid(fbUser.getUid());
                     //add user to MPS
                     addUser(user, new DataAddedListener() {
                         @Override
                         public void onResponse(String key) {
-                            Log.i(TAG, "+++++++++ onResponse: user added");
+                            Log.i(TAG, "+++++++" +
+                                    "++ onResponse: user added");
                             listener.onResponse(key);
                         }
 
@@ -768,7 +704,7 @@ public class DataUtil {
                     databaseReference.child("marshalID").setValue(databaseReference.getKey());
                     Log.i(TAG, "onComplete: marshal added: " + marsh.getName());
                     UserDTO u = new UserDTO();
-                    u.setUserType(SignInContract.ADMIN);
+                    u.setUserType(SignInContract.MARSHAL);
                     u.setEmail(marsh.getEmail());
                     StringBuilder sb = new StringBuilder();
                     sb.append(marsh.getName());
@@ -825,6 +761,9 @@ public class DataUtil {
 
         r.setStatus(route.getStatus());
 
+        //collect route landmarks --
+        final List<LandmarkDTO> landmarks = route.getLandmarkList();
+        Collections.sort(landmarks);
 
         cityRoutes.push().setValue(r, new DatabaseReference.CompletionListener() {
             @Override
@@ -843,22 +782,10 @@ public class DataUtil {
                         }
                     });
 
-                    if (!route.getRouteCityList().isEmpty()) {
-                        for (final RouteCityDTO m : route.getRouteCityList()) {
-                            m.setRouteID(routeRef.getKey());
-                            m.setCityID(route.getCityID());
-                            addRouteCity(m, routeRef, new DataAddedListener() {
-                                @Override
-                                public void onResponse(String key) {
-
-                                }
-
-                                @Override
-                                public void onError(String message) {
-
-                                }
-                            });
-                        }
+                    for (LandmarkDTO m : landmarks) {
+                        m.setCityID(route.getCityID());
+                        m.setRouteID(routeRef.getKey());
+                        addLandmark(m, routeRef, null);
                     }
                     if (!route.getRoutePointList().isEmpty()) {
                         for (final RoutePointsDTO m : route.getRoutePointList()) {
@@ -871,7 +798,7 @@ public class DataUtil {
                             });
                         }
                     }
-                    Log.d(TAG, "+++++ onComplete: done with this route: " + route.getName());
+                    Log.d(TAG, "++++ onComplete: done with this route: " + route.getName());
                     if (listener != null)
                         listener.onResponse(routeRef.getKey());
                 } else {

@@ -11,7 +11,7 @@ import java.util.List;
 
 /**
  *
- * @author Sipho
+ * @author Aubrey Malabie
  */
 public class DriverDTO implements Serializable{
 

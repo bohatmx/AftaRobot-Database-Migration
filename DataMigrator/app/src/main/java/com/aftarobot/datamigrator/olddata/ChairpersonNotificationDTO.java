@@ -9,7 +9,7 @@ import java.io.Serializable;
 
 /**
  *
- * @author Sipho
+ * @author Aubrey Malabie
  */
 public class ChairpersonNotificationDTO implements Serializable{
 

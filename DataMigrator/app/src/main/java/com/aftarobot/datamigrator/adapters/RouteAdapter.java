@@ -41,8 +41,8 @@ public class RouteAdapter extends RecyclerView.Adapter<RouteAdapter.RouteViewHol
 
         final RouteDTO p = routes.get(position);
         holder.route.setText(p.getName());
-        if (p.getRouteCities() != null) {
-            holder.number.setText("" + p.getRouteCities().values().size());
+        if (p.getLandmarks() != null) {
+            holder.number.setText("" + p.getLandmarks().values().size());
         } else {
             holder.number.setText("0");
         }

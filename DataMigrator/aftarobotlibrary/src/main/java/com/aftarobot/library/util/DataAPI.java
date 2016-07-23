@@ -17,7 +17,6 @@ import com.aftarobot.library.data.LandmarkDTO;
 import com.aftarobot.library.data.LandmarkDepartureDTO;
 import com.aftarobot.library.data.MarshalDTO;
 import com.aftarobot.library.data.ProvinceDTO;
-import com.aftarobot.library.data.RouteCityDTO;
 import com.aftarobot.library.data.RouteDTO;
 import com.aftarobot.library.data.TripDTO;
 import com.aftarobot.library.data.UserDTO;
@@ -229,33 +228,7 @@ public class DataAPI {
         });
     }
 
-    public  void addRouteCity(final RouteCityDTO routeCity, final OnDataAdded listener) {
-        if (db == null) {
-            db = FirebaseDatabase.getInstance();
-        }
-        DatabaseReference citiesRef = db.getReference(AFTAROBOT_DB)
-                .child(CITIES)
-                .child(routeCity.getCityID())
-                .child(ROUTES)
-                .child(routeCity.getRouteID())
-                .child(ROUTE_CITIES);
 
-
-        citiesRef.push().setValue(routeCity, new DatabaseReference.CompletionListener() {
-            @Override
-            public void onComplete(DatabaseError databaseError, DatabaseReference routeCityRef) {
-                if (databaseError == null) {
-                    routeCityRef.child("routeCityID").setValue(routeCityRef.getKey());
-                    Log.i(TAG, "onComplete: routeCity added, city: " + routeCity.getCityName() + " routeName: " + routeCity.getRouteName());
-
-                    listener.onResponse(routeCityRef.getKey());
-                } else {
-                    listener.onError(databaseError.getMessage());
-                }
-
-            }
-        });
-    }
 
     public  void addVehicle(final VehicleDTO vehicle, final OnDataAdded listener) {
         if (db == null) {

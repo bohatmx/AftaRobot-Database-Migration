@@ -10,7 +10,7 @@ import java.util.List;
 
 /**
  *
- * @author Sipho
+ * @author Aubrey Malabie
  */
 public class VehicleTripDTO implements Serializable {
 

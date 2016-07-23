@@ -8,7 +8,7 @@ package com.aftarobot.datamigrator.olddata;
 import java.io.Serializable;
 
 /**
- * @author Sipho
+ * @author Aubrey Malabie
  */
 public class VehicleDTO implements Serializable {
 

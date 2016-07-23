@@ -9,7 +9,7 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * @author Sipho
+ * @author Aubrey Malabie
  */
 public class RequestDTO implements Serializable {
     private Boolean zippedResponse;
@@ -162,7 +162,6 @@ public class RequestDTO implements Serializable {
     private OwnerDTO owner;
     private OwnerNotificationDTO ownerNotification;
     private ProvinceDTO province;
-    private RouteCityDTO routeCity;
     private RouteDTO route;
     private SecretaryDTO secretary;
     private SecretaryNotificationDTO secretaryNotification;
@@ -196,7 +195,6 @@ public class RequestDTO implements Serializable {
     private List<OwnerDTO> owners;
     private List<OwnerNotificationDTO> ownerNotifications;
     private List<ProvinceDTO> provinces;
-    private List<RouteCityDTO> routeCities;
     private List<RouteDTO> routes;
     private List<SecretaryDTO> secretaries;
     private List<SecretaryNotificationDTO> secretaryNotifications;
@@ -556,14 +554,6 @@ public class RequestDTO implements Serializable {
         this.province = province;
     }
 
-    public RouteCityDTO getRouteCity() {
-        return routeCity;
-    }
-
-    public void setRouteCity(RouteCityDTO routeCity) {
-        this.routeCity = routeCity;
-    }
-
     public RouteDTO getRoute() {
         return route;
     }
@@ -726,14 +716,6 @@ public class RequestDTO implements Serializable {
 
     public void setRoutePoints(List<RoutePointsDTO> routePoints) {
         this.routePoints = routePoints;
-    }
-
-    public List<RouteCityDTO> getRouteCities() {
-        return routeCities;
-    }
-
-    public void setRouteCities(List<RouteCityDTO> routeCities) {
-        this.routeCities = routeCities;
     }
 
     public List<RankmanagerDTO> getRankManagers() {

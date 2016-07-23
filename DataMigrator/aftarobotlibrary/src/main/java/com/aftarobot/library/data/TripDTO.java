@@ -10,7 +10,7 @@ import java.util.Date;
 
 /**
  *
- * @author Sipho
+ * @author Aubrey Malabie
  */
 public class TripDTO implements Serializable, Comparable<TripDTO> {
 

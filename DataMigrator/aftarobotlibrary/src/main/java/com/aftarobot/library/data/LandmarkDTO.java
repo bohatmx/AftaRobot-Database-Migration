@@ -5,13 +5,15 @@
  */
 package com.aftarobot.library.data;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 /**
- * @author Sipho
+ * @author Aubrey Malabie
  */
 public class LandmarkDTO implements Serializable, Comparable<LandmarkDTO> {
 
@@ -23,6 +25,17 @@ public class LandmarkDTO implements Serializable, Comparable<LandmarkDTO> {
     private List<TripDTO> tripList = new ArrayList<>();
 
     private HashMap<String, TripDTO> trips;
+    @JsonIgnore
+    private boolean sortByRankSequence;
+
+    public boolean isSortByRankSequence() {
+        return sortByRankSequence;
+    }
+
+    public void setSortByRankSequence(boolean sortByRankSequence) {
+        this.sortByRankSequence = sortByRankSequence;
+    }
+
     public LandmarkDTO() {
 
     }
@@ -213,6 +226,17 @@ public class LandmarkDTO implements Serializable, Comparable<LandmarkDTO> {
 
     @Override
     public int compareTo(LandmarkDTO another) {
-        return this.landmarkName.compareTo(another.landmarkName);
+        if (isSortByRankSequence()) {
+            if (this.rankSequenceNumber < another.rankSequenceNumber) {
+                return -1;
+            }
+            if (this.rankSequenceNumber > another.rankSequenceNumber) {
+                return 1;
+            }
+        } else {
+            return this.landmarkName.compareTo(another.landmarkName);
+        }
+
+        return 0;
     }
 }

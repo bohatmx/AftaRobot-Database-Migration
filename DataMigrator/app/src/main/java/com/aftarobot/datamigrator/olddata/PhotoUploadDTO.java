@@ -8,7 +8,7 @@ package com.aftarobot.datamigrator.olddata;
 
 /**
  *
- * @author SiphoKobue
+ * @author Aubrey MalabieKobue
  */
 public class PhotoUploadDTO {
 

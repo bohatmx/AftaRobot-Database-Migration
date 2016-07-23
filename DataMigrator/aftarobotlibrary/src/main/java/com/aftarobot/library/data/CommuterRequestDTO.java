@@ -8,7 +8,7 @@ package com.aftarobot.library.data;
 import java.io.Serializable;
 
 /**
- * @author Sipho
+ * @author Aubrey Malabie
  */
 public class CommuterRequestDTO implements Serializable {
 

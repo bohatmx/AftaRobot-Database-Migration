@@ -78,20 +78,15 @@ public class RouteActivity extends AppCompatActivity {
         routeAdapter = new RouteAdapter(routeList, new RouteAdapter.RouteListener() {
             @Override
             public void onNameClicked(RouteDTO route) {
-                Log.d(TAG, "onNameClicked: routeCity: " + route.getName());
-//                if (route.getRouteCities() != null && !route.getRouteCities().isEmpty()) {
-//                    Intent m = new Intent(getApplicationContext(), GenericGeofenceActivity.class);
-//                    m.putExtra("route", route);
-//                    startActivity(m);
-//                }
+                Log.d(TAG, "onNameClicked: route: " + route.getName());
             }
 
             @Override
             public void onNumberClicked(RouteDTO route) {
                 Log.d(TAG, "onNumberClicked: routeCity: " + route.getName());
-                if (route.getRouteCities() != null && !route.getRouteCities().isEmpty()) {
-                    Intent m = new Intent(getApplicationContext(), RouteCityActivity.class);
-                    m.putExtra("routeCity", route);
+                if (route.getLandmarks() != null && !route.getLandmarks().isEmpty()) {
+                    Intent m = new Intent(getApplicationContext(), LandmarkActivity.class);
+                    m.putExtra("route", route);
                     startActivity(m);
                 }
             }

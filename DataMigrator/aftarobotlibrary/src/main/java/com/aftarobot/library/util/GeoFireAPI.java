@@ -4,8 +4,6 @@ import android.util.Log;
 
 import com.aftarobot.library.data.CityDTO;
 import com.aftarobot.library.data.LandmarkDTO;
-import com.aftarobot.library.data.RouteCityDTO;
-import com.aftarobot.library.data.RouteDTO;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.geofire.GeoFire;
@@ -156,25 +154,7 @@ public class GeoFireAPI {
             }
         });
     }
-    public static void addCityLandmarks(CityDTO city) {
-        final GeoFire geo = new GeoFire(new Firebase(GEOFIRE_URL + "/landmarks"));
-        if (city.getRoutes() != null) {
-            for (RouteDTO r: city.getRoutes().values()) {
-                Log.w(TAG, "\t: route: " + r.getName() );
-                if (r.getRouteCities() != null) {
-                    for (RouteCityDTO rc: r.getRouteCities().values()) {
-                        Log.e(TAG, "\t\t: routeCity: " + rc.getCityName() );
-                        if (rc.getLandmarks() != null) {
-                            for (final LandmarkDTO l: rc.getLandmarks().values()) {
-                                Log.d(TAG, "\t\t\t: landmark: " + l.getLandmarkName() + " route: " + l.getCityName());
-                                addLandmark(l,null);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+
     private static String stripBlanks(String s) {
         return s.replaceAll("\\s+","");
     }

@@ -28,10 +28,6 @@ import com.aftarobot.datamigrator.util.DataUtil;
 import com.aftarobot.datamigrator.util.OldUtil;
 import com.aftarobot.library.data.AttachmentDTO;
 import com.aftarobot.library.data.CityDTO;
-import com.aftarobot.library.data.LandmarkDTO;
-import com.aftarobot.library.data.RouteCityDTO;
-import com.aftarobot.library.data.RouteDTO;
-import com.aftarobot.library.data.TripDTO;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.nearby.Nearby;
@@ -164,7 +160,6 @@ public class CityActivity extends AppCompatActivity implements GoogleApiClient.C
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        addTrips(city);
                     }
                 })
                 .setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -215,56 +210,6 @@ public class CityActivity extends AppCompatActivity implements GoogleApiClient.C
             }
         });
         bar.show();
-    }
-    @Deprecated
-    private void addTrips(CityDTO city) {
-
-
-        if (city.getRoutes() != null) {
-            for (RouteDTO r: city.getRoutes().values()) {
-                if (r.getRouteCities() != null) {
-                    for (RouteCityDTO rc: r.getRouteCities().values()) {
-                        if (rc.getLandmarks() != null) {
-                            for (LandmarkDTO l: rc.getLandmarks().values()) {
-
-                                com.aftarobot.datamigrator.olddata.LandmarkDTO x = map.get(l.getLandmarkName());
-                                if (x != null) {
-                                    if (!x.getTripList().isEmpty()) {
-                                        for (com.aftarobot.datamigrator.olddata.TripDTO t: x.getTripList()) {
-                                            TripDTO tx = new TripDTO();
-                                            tx.setLandmarkID(l.getLandmarkID());
-                                            tx.setLandmarkName(t.getLandmarkName());
-                                            tx.setVehicleReg(t.getVehicleReg());
-                                            tx.setRouteName(l.getRouteName());
-                                            tx.setRouteCityName(l.getRouteCityName());
-                                            tx.setCityID(l.getCityID());
-                                            tx.setCityName(l.getCityName());
-                                            tx.setDateArrived(t.getDateArrived());
-                                            tx.setDateDispatched(t.getDateDipatched());
-                                            tx.setMarshalName(t.getMarshalName());
-                                            tx.setNumberOfPassengers(t.getNumberOfPassengers());
-                                            tx.setRouteCityID(l.getRouteCityID());
-                                            tx.setAssociatioName(t.getAssociatioName());
-
-                                            DataUtil.addTrip(tx,null);
-
-                                        }
-                                    } else {
-                                        Log.d(TAG, "addTrips: NO TRIPS");
-                                    }
-                                }
-                            }
-                        } else {
-                            Log.d(TAG, "addTrips: No landmarks");
-                        }
-                    }
-                } else {
-                    Log.d(TAG, "addTrips: No landmark cities");
-                }
-            }
-        } else {
-            Log.d(TAG, "addTrips: no ROUTES!!");
-        }
     }
     HashMap<String, com.aftarobot.datamigrator.olddata.LandmarkDTO> map = new HashMap<>();
     List<com.aftarobot.datamigrator.olddata.LandmarkDTO> landmarks;

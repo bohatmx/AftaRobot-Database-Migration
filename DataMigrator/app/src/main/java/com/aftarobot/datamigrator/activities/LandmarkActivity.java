@@ -16,7 +16,7 @@ import android.widget.TextView;
 import com.aftarobot.datamigrator.R;
 import com.aftarobot.datamigrator.adapters.LandmarkAdapter;
 import com.aftarobot.library.data.LandmarkDTO;
-import com.aftarobot.library.data.RouteCityDTO;
+import com.aftarobot.library.data.RouteDTO;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -35,7 +35,7 @@ public class LandmarkActivity extends AppCompatActivity {
     Snackbar bar;
     LandmarkAdapter landmarkAdapter;
     List<LandmarkDTO> landmarks = new ArrayList<>();
-    RouteCityDTO routeCity;
+    RouteDTO route;
 
 
     @Override
@@ -46,8 +46,8 @@ public class LandmarkActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         recycler = (RecyclerView) findViewById(R.id.recycler);
         title = (TextView) findViewById(R.id.entityTitle);
-        routeCity = (RouteCityDTO) getIntent().getSerializableExtra("routeCity");
-        title.setText("Landmarks - " + routeCity.getCityName());
+        route = (RouteDTO) getIntent().getSerializableExtra("routeC");
+        title.setText("Landmarks - ");
         LinearLayoutManager lm = new LinearLayoutManager(getApplicationContext());
         recycler.setLayoutManager(lm);
         progressBar = (ProgressBar) findViewById(R.id.progress_bar);
@@ -67,8 +67,8 @@ public class LandmarkActivity extends AppCompatActivity {
 
     private void setLandmarkList() {
 
-        for (LandmarkDTO o : routeCity.getLandmarks().values()) {
-            landmarks.add(o);
+        for (LandmarkDTO m: route.getLandmarks().values()) {
+            landmarks.add(m);
         }
         Collections.sort(landmarks);
         landmarkAdapter = new LandmarkAdapter(landmarks, new LandmarkAdapter.LandmarkListener() {
